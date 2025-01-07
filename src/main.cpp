@@ -26,6 +26,9 @@ const char* fragmentShaderSource =
     "}\n\0";
 
 int main() {
+    ///////////////////////////////////////////////////////////////////////////
+    // Init OpenGL, Windowing etc.
+    ///////////////////////////////////////////////////////////////////////////
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -46,6 +49,9 @@ int main() {
         return -1;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Compile shaders
+    ///////////////////////////////////////////////////////////////////////////
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
@@ -79,6 +85,9 @@ int main() {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Prepare Buffers
+    ///////////////////////////////////////////////////////////////////////////
     float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                         0.0f,  0.0f,  0.5f, 0.0f};
 
@@ -91,6 +100,9 @@ int main() {
     glEnableVertexArrayAttrib(VAO, 0);
     glVertexArrayAttribBinding(VAO, 0, 0);
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Main Loop
+    ///////////////////////////////////////////////////////////////////////////
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
