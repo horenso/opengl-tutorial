@@ -1,0 +1,91 @@
+diff --git a/src/main.cpp b/src/main.cpp
+index 44be1b0..24a2d88 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -10,23 +10,27 @@ void processInput(GLFWwindow* window);
+ const unsigned int SCR_WIDTH = 800;
+ const unsigned int SCR_HEIGHT = 600;
+ 
+ const char* vertexShaderSource =
+     "#version 460 core\n"
+     "layout (location = 0) in vec3 aPos;\n"
++    "layout (location = 1) in vec3 aCol;\n"
++    "out vec3 outCol;\n"
+     "void main()\n"
+     "{\n"
+     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
++    "   outCol = aCol;\n"
+     "}\n";
+ const char* fragmentShaderSource =
+     "#version 460 core\n"
++    "in vec3 outCol;\n"
+     "out vec4 FragColor;\n"
+     "void main()\n"
+     "{\n"
+-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
++    "   FragColor = vec4(outCol.x, outCol.y, outCol.z, 1.0f);\n"
+     "}\n";
+ 
+ int main() {
+     ///////////////////////////////////////////////////////////////////////////
+     // Init OpenGL, Windowing etc.
+     ///////////////////////////////////////////////////////////////////////////
+     glfwInit();
+@@ -85,24 +89,34 @@ int main() {
+     glDeleteShader(vertexShader);
+     glDeleteShader(fragmentShader);
+ 
+     ///////////////////////////////////////////////////////////////////////////
+     // Prepare Buffers
+     ///////////////////////////////////////////////////////////////////////////
+-    float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+-                        0.0f,  0.0f,  0.5f, 0.0f};
+-
+-    unsigned int VBO, VAO;
+-    glCreateBuffers(1, &VBO);
++    float vertices[] = {
++        -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f,
++    };
++    float colors[] = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
++
++    unsigned int VBO_pos, VBO_col, VAO;
++    glCreateBuffers(1, &VBO_pos);
++    glCreateBuffers(1, &VBO_col);
+     glCreateVertexArrays(1, &VAO);
+-    glNamedBufferData(VBO, sizeof(vertices), vertices, GL_STATIC_DRAW);
+-    glVertexArrayVertexBuffer(VAO, 0, VBO, 0, 3 * sizeof(float));
++
++    glNamedBufferData(VBO_pos, sizeof(vertices), vertices, GL_STATIC_DRAW);
++    glVertexArrayVertexBuffer(VAO, 0, VBO_pos, 0, 3 * sizeof(float));
+     glVertexArrayAttribFormat(VAO, 0, 3, GL_FLOAT, GL_FALSE, 0);
+     glEnableVertexArrayAttrib(VAO, 0);
+     glVertexArrayAttribBinding(VAO, 0, 0);
+ 
++    glNamedBufferData(VBO_col, sizeof(colors), colors, GL_STATIC_DRAW);
++    glVertexArrayVertexBuffer(VAO, 1, VBO_col, 0, 3 * sizeof(float));
++    glVertexArrayAttribFormat(VAO, 1, 3, GL_FLOAT, GL_FALSE, 0);
++    glEnableVertexArrayAttrib(VAO, 1);
++    glVertexArrayAttribBinding(VAO, 1, 1);
++
+     ///////////////////////////////////////////////////////////////////////////
+     // Main Loop
+     ///////////////////////////////////////////////////////////////////////////
+     while (!glfwWindowShouldClose(window)) {
+         processInput(window);
+ 
+@@ -115,13 +129,14 @@ int main() {
+ 
+         glfwSwapBuffers(window);
+         glfwPollEvents();
+     }
+ 
+     glDeleteVertexArrays(1, &VAO);
+-    glDeleteBuffers(1, &VBO);
++    glDeleteBuffers(1, &VBO_pos);
++    glDeleteBuffers(1, &VBO_col);
+     glDeleteProgram(shaderProgram);
+ 
+     glfwTerminate();
+     return 0;
+ }
+ 
